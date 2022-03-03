@@ -23,6 +23,11 @@ Control your underlying Ubuntu distribution through Kubernetes....
 
 ## Installation
 
+## Host-relay
+
+`make install-relay`
+
+## Operator 
 ```
 make install # Uploads the CustomResourceDefinitions into your cluster
 make deploy

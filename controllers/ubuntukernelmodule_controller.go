@@ -25,6 +25,7 @@ import (
 
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
+	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -74,6 +75,8 @@ func (r *UbuntuKernelModuleReconciler) Reconcile(ctx context.Context, req ctrl.R
 		return ctrl.Result{}, err
 
 	}
+
+	hostPathType := v1.HostPathDirectoryOrCreate
 	// Define the desired Daemonset object
 	daemonset := &appsv1.DaemonSet{
 		ObjectMeta: metav1.ObjectMeta{
@@ -84,15 +87,41 @@ func (r *UbuntuKernelModuleReconciler) Reconcile(ctx context.Context, req ctrl.R
 			Selector: &metav1.LabelSelector{
 				MatchLabels: map[string]string{"daemonset": instance.Name + "-daemonset"},
 			},
+
 			Template: corev1.PodTemplateSpec{
 				ObjectMeta: metav1.ObjectMeta{
 					Labels: map[string]string{"daemonset": instance.Name + "-daemonset"},
 				},
 				Spec: corev1.PodSpec{
+					Volumes: []corev1.Volume{
+						{
+							Name: "socket-path",
+							VolumeSource: corev1.VolumeSource{
+								HostPath: &corev1.HostPathVolumeSource{
+									Path: "/run/ubuntu-operator/",
+									Type: &hostPathType,
+								},
+							},
+						},
+					},
 					Containers: []corev1.Container{
 						{
-							Name:  "controller",
-							Image: "tibbar/ubuntu-kernel-module-controller:latest",
+							ImagePullPolicy: corev1.PullAlways,
+							Name:            "controller",
+							Image:           "tibbar/ubuntu-kernel-module-controller:latest",
+							SecurityContext: &corev1.SecurityContext{
+								Privileged: &[]bool{true}[0],
+								Capabilities: &corev1.Capabilities{
+									Add: []corev1.Capability{"CAP_NET_BIND_SERVICE"},
+								},
+							},
+							Args: []string{"--socketPath", "/run/ubuntu-operator/uo0.sock"},
+							VolumeMounts: []corev1.VolumeMount{
+								{
+									Name:      "socket-path",
+									MountPath: "/run/ubuntu-operator/",
+								},
+							},
 						},
 					},
 				},
