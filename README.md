@@ -27,3 +27,9 @@ Control your underlying Ubuntu distribution through Kubernetes....
 make install # Uploads the CustomResourceDefinitions into your cluster
 make deploy
 ```
+
+
+## Development
+
+After installing the CRD with `make install`
+Run `go run main.go` to run the operator locally.
