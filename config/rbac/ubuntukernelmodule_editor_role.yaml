@@ -1,0 +1,24 @@
+# permissions for end users to edit ubuntukernelmodules.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: ubuntukernelmodule-editor-role
+rules:
+- apiGroups:
+  - ubuntu.machinery.io.canonical.com
+  resources:
+  - ubuntukernelmodules
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - ubuntu.machinery.io.canonical.com
+  resources:
+  - ubuntukernelmodules/status
+  verbs:
+  - get

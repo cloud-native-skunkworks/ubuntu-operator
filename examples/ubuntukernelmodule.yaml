@@ -1,0 +1,9 @@
+apiVersion: ubuntu.machinery.io.canonical.com/v1alpha1
+kind: UbuntuKernelModule
+metadata:
+  name: ubuntukernelmodule-sample
+spec:
+  desiredModules:
+  - "nvme"
+  - "rfcom"
+  - "nvme_core"

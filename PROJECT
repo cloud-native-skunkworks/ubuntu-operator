@@ -1,0 +1,21 @@
+domain: canonical.com
+layout:
+- go.kubebuilder.io/v3
+projectName: ubuntu-operator
+repo: ubuntu-operator
+resources:
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: canonical.com
+  group: ubuntu.machinery.io
+  kind: UbuntuKernelModule
+  path: ubuntu-operator/api/v1alpha1
+  version: v1alpha1
+- controller: true
+  domain: canonical.com
+  group: ubuntu.machinery.io
+  kind: NodeController
+  version: v1alpha1
+version: "3"

@@ -1,0 +1,6 @@
+apiVersion: ubuntu.machinery.io.canonical.com/v1alpha1
+kind: UbuntuKernelModule
+metadata:
+  name: ubuntukernelmodule-sample
+spec:
+  # TODO(user): Add fields here
