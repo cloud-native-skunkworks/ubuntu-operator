@@ -1,0 +1,12 @@
+#!/bin/bash
+
+trap "cd ../" EXIT
+
+cd host-relay 
+sudo mkdir -p /opt/ubuntu-operator
+go build -o host-relay .
+sudo mv host-relay /opt/ubuntu-operator/host-relay
+sudo cp host-relay.service /lib/systemd/system/.
+sudo chmod 755 /lib/systemd/system/host-relay.service
+sudo systemctl enable host-relay.service
+sudo systemctl start host-relay

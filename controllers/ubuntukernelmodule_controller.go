@@ -98,7 +98,7 @@ func (r *UbuntuKernelModuleReconciler) Reconcile(ctx context.Context, req ctrl.R
 							Name: "socket-path",
 							VolumeSource: corev1.VolumeSource{
 								HostPath: &corev1.HostPathVolumeSource{
-									Path: "/run/ubuntu-operator/",
+									Path: "/opt/ubuntu-operator/",
 									Type: &hostPathType,
 								},
 							},
@@ -115,11 +115,11 @@ func (r *UbuntuKernelModuleReconciler) Reconcile(ctx context.Context, req ctrl.R
 									Add: []corev1.Capability{"CAP_NET_BIND_SERVICE"},
 								},
 							},
-							Args: []string{"--socketPath", "/run/ubuntu-operator/uo0.sock"},
+							Args: []string{"--socketPath", "/opt/ubuntu-operator/uo2.sock"},
 							VolumeMounts: []corev1.VolumeMount{
 								{
 									Name:      "socket-path",
-									MountPath: "/run/ubuntu-operator/",
+									MountPath: "/opt/ubuntu-operator/",
 								},
 							},
 						},
