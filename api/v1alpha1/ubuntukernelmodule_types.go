@@ -46,7 +46,7 @@ type UbuntuKernelModuleStatus struct {
 
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
-
+// +genclient
 // UbuntuKernelModule is the Schema for the ubuntukernelmodules API
 type UbuntuKernelModule struct {
 	metav1.TypeMeta   `json:",inline"`

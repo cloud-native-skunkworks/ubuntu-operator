@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	ukmv1alpha1 "github.com/cloud-native-skunkworks/generated/ubuntukernelmodules/clientset/versioned"
 	log "github.com/sirupsen/logrus"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
@@ -62,6 +63,8 @@ func main() {
 	if err != nil {
 		log.Fatalf("Error building watcher clientset: %s", err.Error())
 	}
+
+	ukmv1alpha1.NewForConfigOrDie(kubeCfg)
 
 	// Setup Kmod ------------------------------------------------------------------------------------
 
