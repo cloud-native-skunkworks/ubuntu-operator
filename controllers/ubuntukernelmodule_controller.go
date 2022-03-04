@@ -48,7 +48,7 @@ type UbuntuKernelModuleReconciler struct {
 }
 
 //+kubebuilder:rbac:groups=ubuntu.machinery.io.canonical.com,resources=ubuntukernelmodules,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=ubuntu.machinery.io.canonical.com,resources=ubuntukernelmodules/status,verbs=get;update;patch
+//+kubebuilder:rbac:groups=ubuntu.machinery.io.canonical.com,resources=ubuntukernelmodules/status,verbs=get;update;patch;create;delete
 //+kubebuilder:rbac:groups=ubuntu.machinery.io.canonical.com,resources=ubuntukernelmodules/finalizers,verbs=patch;create;update;delete
 //+kubebuilder:rbac:groups=apps,resources=daemonsets,verbs=get;list;watch;create;update;patch;delete
 

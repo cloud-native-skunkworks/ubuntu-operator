@@ -114,16 +114,16 @@ func main() {
 
 	// ------------------------------------------------------------------------------------------------
 	if len(myFlags) == 0 {
-		fmt.Printf("No modules specified. Exiting.\n")
+		log.Printf("No modules specified. Exiting.\n")
 		return
 	}
 	if *socketPath == "" {
-		fmt.Printf("No --socketPath set")
+		log.Printf("No --socketPath set")
 		return
 	}
 
 	for {
-		fmt.Printf("Using socketpath %s", socketPath)
+		log.Printf("Using socketpath %s\n", socketPath)
 		c, err := net.Dial("unix", *socketPath)
 		if err != nil {
 			panic(err.Error())
@@ -144,44 +144,45 @@ func main() {
 			Type:           "Request",
 			DesiredModules: desiredModules,
 		}
-
+		log.Println("Marshalling message")
 		b, err := json.Marshal(sendMessage)
 		if err != nil {
 			fmt.Println("Error:", err)
 			continue
 		}
 		b = append(b, '\n')
-
+		log.Println("Writing message")
 		_, err = c.Write(b)
 		if err != nil {
-			println(err.Error())
+			log.Printf(err.Error())
 			continue
 		}
-
+		log.Println("Reading response")
 		reader := bufio.NewReader(c)
 		data, err := reader.ReadBytes('\n')
 		if err != nil {
-			println(err.Error())
+			log.Printf(err.Error())
 			continue
 		}
 
 		data = data[:len(data)-1]
 
+		log.Println("Unmarshalling response")
 		var msg RelayMessage
 		err = json.Unmarshal(data, &msg)
 		if err != nil {
-			fmt.Println("Error unmarshalling message:", err)
+			log.Printf("Error unmarshalling message:", err)
 			return
 		}
 
 		switch msg.Type {
 		case "Response":
-			fmt.Printf("Response: %s", msg.ActualModules)
+			log.Printf("Response: \n\n%s\n\n\n", msg.ActualModules)
 
 			// Write back the changes
 			li, err := fetchUbuntuKernelModuleCR(restClient)
 			if err != nil || len(li.Items) == 0 {
-				log.Warningf("No UbuntuKernelModule CR found. Waiting for it to be created.")
+				log.Printf("No UbuntuKernelModule CR found. Waiting for it to be created.")
 				continue
 			}
 			//TODO:
@@ -203,7 +204,7 @@ func main() {
 				Name:    msg.HostName,
 				Modules: modules,
 			})
-
+			log.Println("Updating ubuntuKernelModule CR")
 			restClient.Put().Resource("ubuntukernelmodules").Body(v1alpha1.UbuntuKernelModuleList{
 				Items: []v1alpha1.UbuntuKernelModule{kernelModuleCR},
 			}).Do(context.TODO())
