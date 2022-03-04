@@ -124,7 +124,7 @@ func (in *UbuntuKernelModuleSpec) DeepCopyInto(out *UbuntuKernelModuleSpec) {
 	*out = *in
 	if in.DesiredModules != nil {
 		in, out := &in.DesiredModules, &out.DesiredModules
-		*out = make([]string, len(*in))
+		*out = make([]Module, len(*in))
 		copy(*out, *in)
 	}
 }

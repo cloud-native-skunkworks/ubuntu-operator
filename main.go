@@ -31,8 +31,9 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
-	ubuntumachineryiov1alpha1 "ubuntu-operator/api/v1alpha1"
-	"ubuntu-operator/controllers"
+	ubuntumachineryiov1alpha1 "github.com/cloud-native-skunkworks/ubuntu-operator/api/v1alpha1"
+
+	"github.com/cloud-native-skunkworks/ubuntu-operator/controllers"
 	//+kubebuilder:scaffold:imports
 )
 

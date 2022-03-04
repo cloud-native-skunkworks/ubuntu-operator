@@ -37,7 +37,16 @@ spec:
             properties:
               desiredModules:
                 items:
-                  type: string
+                  properties:
+                    flags:
+                      type: string
+                    name:
+                      type: string
+                    size:
+                      type: string
+                    usedBy:
+                      type: string
+                  type: object
                 type: array
             required:
             - desiredModules
@@ -51,6 +60,8 @@ spec:
                     modules:
                       items:
                         properties:
+                          flags:
+                            type: string
                           name:
                             type: string
                           size:

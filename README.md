@@ -36,5 +36,11 @@ make deploy
 
 ## Development
 
+### Operator 
+
 After installing the CRD with `make install`
 Run `go run main.go` to run the operator locally.
+
+### Socket connections
+
+```

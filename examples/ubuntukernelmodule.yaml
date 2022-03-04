@@ -4,6 +4,7 @@ metadata:
   name: ubuntukernelmodule-sample
 spec:
   desiredModules:
-  - "nvme"
-  - "rfcom"
-  - "nvme_core"
+  - name: "nvme_core"
+    flags: ""
+  - name: "rfcomm"
+    flags: ""

@@ -24,7 +24,7 @@ import (
 // NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
 
 type UbuntuKernelModuleSpec struct {
-	DesiredModules []string `json:"desiredModules"`
+	DesiredModules []Module `json:"desiredModules"`
 }
 
 type Node struct {
@@ -34,6 +34,7 @@ type Node struct {
 
 type Module struct {
 	Name   string `json:"name,omitempty"`
+	Flags  string `json:"flags,omitempty"`
 	UsedBy string `json:"usedBy,omitempty"`
 	Size   string `json:"size,omitempty"`
 }
