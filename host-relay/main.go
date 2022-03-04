@@ -1,14 +1,16 @@
 package main
 
 import (
+	"bufio"
 	"encoding/json"
 	"flag"
 	"fmt"
-	"log"
 	"net"
+	"os"
 
 	kmk "github.com/ElyKar/golang-kmod/kmod"
 	"github.com/pmorjan/kmod"
+	log "github.com/sirupsen/logrus"
 )
 
 type Module struct {
@@ -18,6 +20,7 @@ type Module struct {
 
 type RelayMessage struct {
 	Type           string   `json:"type"` // "Request | Response"
+	HostName       string   `json:"hostName"`
 	DesiredModules []Module `json:"desiredModules"`
 	ActualModules  []Module `json:"actualModules"`
 }
@@ -28,14 +31,15 @@ func loadKernelModule(moduleName string, flags string, k *kmod.Kmod) error {
 }
 func server(c net.Conn, k *kmod.Kmod, kkm *kmk.Kmod) {
 	for {
-		buf := make([]byte, 12000)
-		nr, err := c.Read(buf)
+		reader := bufio.NewReader(c)
+		data, err := reader.ReadBytes('\n')
 		if err != nil {
+			println(err.Error())
+
 			return
 		}
 
-		data := buf[0:nr]
-		fmt.Printf("Received: %v", string(data))
+		data = data[:len(data)-1]
 
 		var msg RelayMessage
 		err = json.Unmarshal(data, &msg)
@@ -69,6 +73,13 @@ func server(c net.Conn, k *kmod.Kmod, kkm *kmk.Kmod) {
 				m := Module{Name: module.Name()}
 				actualModules = append(actualModules, m)
 			}
+			hostname, err := os.Hostname()
+			if err != nil {
+				panic(err)
+			}
+
+			msg.Type = "Response"
+			msg.HostName = hostname
 			msg.ActualModules = actualModules
 		}
 
@@ -76,6 +87,8 @@ func server(c net.Conn, k *kmod.Kmod, kkm *kmk.Kmod) {
 		if err != nil {
 			fmt.Println("Error:", err)
 		}
+
+		b = append(b, '\n')
 
 		_, err = c.Write(b)
 		if err != nil {
@@ -89,6 +102,11 @@ var (
 )
 
 func main() {
+
+	log.SetFormatter(&log.JSONFormatter{})
+	log.SetOutput(os.Stdout)
+	// Only log the warning severity or above.
+	log.SetLevel(log.DebugLevel)
 
 	k, err := kmod.New()
 	if err != nil {
@@ -104,20 +122,20 @@ func main() {
 	flag.Parse()
 
 	if socketPath == "" {
-		fmt.Printf("No --socketPath set")
+		log.Printf("No --socketPath set")
 		return
 	}
-	fmt.Printf("Using socketpath %s", socketPath)
+	log.Printf("Using socketpath %s", socketPath)
 	l, err := net.Listen("unix", socketPath)
 	if err != nil {
-		println("listen error", err.Error())
+		log.Printf("listen error", err.Error())
 		return
 	}
 
 	for {
 		fd, err := l.Accept()
 		if err != nil {
-			println("accept error", err.Error())
+			log.Printf("accept error", err.Error())
 			return
 		}
 

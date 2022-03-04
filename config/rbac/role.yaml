@@ -34,6 +34,9 @@ rules:
   resources:
   - ubuntukernelmodules/finalizers
   verbs:
+  - create
+  - delete
+  - patch
   - update
 - apiGroups:
   - ubuntu.machinery.io.canonical.com

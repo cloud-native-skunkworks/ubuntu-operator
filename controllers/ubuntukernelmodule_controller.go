@@ -18,7 +18,9 @@ package controllers
 
 import (
 	"context"
+	"fmt"
 	"reflect"
+	"strings"
 
 	"github.com/cloud-native-skunkworks/ubuntu-operator/api/v1alpha1"
 	ubuntumachineryiov1alpha1 "github.com/cloud-native-skunkworks/ubuntu-operator/api/v1alpha1"
@@ -47,8 +49,9 @@ type UbuntuKernelModuleReconciler struct {
 
 //+kubebuilder:rbac:groups=ubuntu.machinery.io.canonical.com,resources=ubuntukernelmodules,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=ubuntu.machinery.io.canonical.com,resources=ubuntukernelmodules/status,verbs=get;update;patch
-//+kubebuilder:rbac:groups=ubuntu.machinery.io.canonical.com,resources=ubuntukernelmodules/finalizers,verbs=update
+//+kubebuilder:rbac:groups=ubuntu.machinery.io.canonical.com,resources=ubuntukernelmodules/finalizers,verbs=patch;create;update;delete
 //+kubebuilder:rbac:groups=apps,resources=daemonsets,verbs=get;list;watch;create;update;patch;delete
+
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
 // TODO(user): Modify the Reconcile function to compare the state specified by
@@ -76,8 +79,18 @@ func (r *UbuntuKernelModuleReconciler) Reconcile(ctx context.Context, req ctrl.R
 
 	}
 
+	var moduleList []string
+	for _, mod := range instance.Spec.DesiredModules {
+
+		joined := fmt.Sprintf("%s=%s", mod.Name, mod.Flags)
+		moduleList = append(moduleList, joined)
+	}
+
 	hostPathType := v1.HostPathDirectoryOrCreate
 	// Define the desired Daemonset object
+
+	// Seems to be a bug here on creating daemonsets
+
 	daemonset := &appsv1.DaemonSet{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      instance.Name + "-daemonset",
@@ -106,6 +119,12 @@ func (r *UbuntuKernelModuleReconciler) Reconcile(ctx context.Context, req ctrl.R
 					},
 					Containers: []corev1.Container{
 						{
+							Env: []corev1.EnvVar{
+								{
+									Name:  "MODULE_LIST",
+									Value: strings.Join(moduleList, ","),
+								},
+							},
 							ImagePullPolicy: corev1.PullAlways,
 							Name:            "controller",
 							Image:           "tibbar/ubuntu-kernel-module-controller:latest",
