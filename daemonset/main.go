@@ -13,8 +13,9 @@ import (
 
 	v1alpha1 "github.com/cloud-native-skunkworks/ubuntu-operator/api/v1alpha1"
 	log "github.com/sirupsen/logrus"
+	mv1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/serializer"
-	"k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 )
@@ -43,21 +44,37 @@ func (i *arrayFlags) Set(value string) error {
 }
 
 var (
-	myFlags         arrayFlags
-	minWatchTimeout = 5 * time.Minute
-	masterURL       = flag.String("masterURL", "", "masterURL")
-	kubeconfig      = flag.String("kubeconfig", "", "kubeconfig")
-	socketPath      = flag.String("socketPath", "", "socketPath")
+	myFlags            arrayFlags
+	minWatchTimeout    = 5 * time.Minute
+	masterURL          = flag.String("masterURL", "", "masterURL")
+	kubeconfig         = flag.String("kubeconfig", "", "kubeconfig")
+	socketPath         = flag.String("socketPath", "", "socketPath")
+	SchemeGroupVersion = v1alpha1.GroupVersion
 )
 
+func addKnownTypes(scheme *runtime.Scheme) error {
+	scheme.AddKnownTypes(SchemeGroupVersion,
+		&v1alpha1.UbuntuKernelModuleList{},
+		&v1alpha1.UbuntuKernelModule{})
+
+	mv1.AddToGroupVersion(scheme, SchemeGroupVersion)
+	return nil
+}
+
 func buildClient(config *rest.Config) *rest.RESTClient {
+
+	scheme := runtime.NewScheme()
+	SchemeBuilder := runtime.NewSchemeBuilder(addKnownTypes)
+	if err := SchemeBuilder.AddToScheme(scheme); err != nil {
+		panic(err)
+	}
 	crdConfig := *config
-	crdConfig.ContentConfig.GroupVersion = &v1alpha1.GroupVersion
+	crdConfig.GroupVersion = &SchemeGroupVersion
 	crdConfig.APIPath = "/apis"
-	crdConfig.NegotiatedSerializer = serializer.NewCodecFactory(scheme.Scheme)
+	crdConfig.NegotiatedSerializer = serializer.NewCodecFactory(scheme)
 	crdConfig.UserAgent = rest.DefaultKubernetesUserAgent()
 
-	client, err := rest.UnversionedRESTClientFor(&crdConfig)
+	client, err := rest.RESTClientFor(&crdConfig)
 	if err != nil {
 		panic(err)
 	}
@@ -88,7 +105,6 @@ func main() {
 		log.Fatalf("Error building kubeconfig: %s", err.Error())
 	}
 
-	v1alpha1.AddToScheme(scheme.Scheme)
 	restClient := buildClient(kubeCfg)
 
 	// Setup Kmod ------------------------------------------------------------------------------------
@@ -177,12 +193,13 @@ func main() {
 
 		switch msg.Type {
 		case "Response":
-			log.Printf("Response: \n\n%s\n\n\n", msg.ActualModules)
+			log.Printf("Response recieved \n")
 
 			// Write back the changes
 			li, err := fetchUbuntuKernelModuleCR(restClient)
 			if err != nil || len(li.Items) == 0 {
 				log.Printf("No UbuntuKernelModule CR found. Waiting for it to be created.")
+				time.Sleep(time.Second * 30)
 				continue
 			}
 			//TODO:
@@ -204,10 +221,26 @@ func main() {
 				Name:    msg.HostName,
 				Modules: modules,
 			})
+
+			// Update resource version ----------------------------------------------------------------
+			kernelModuleCR.Annotations = map[string]string{}
+			// ----------------------------------------------------------------------------------------
 			log.Println("Updating ubuntuKernelModule CR")
-			restClient.Put().Resource("ubuntukernelmodules").Body(v1alpha1.UbuntuKernelModuleList{
-				Items: []v1alpha1.UbuntuKernelModule{kernelModuleCR},
-			}).Do(context.TODO())
+			result := v1alpha1.UbuntuKernelModule{}
+			err = restClient.
+				Put().
+				Namespace(kernelModuleCR.ObjectMeta.Namespace).
+				Name(kernelModuleCR.ObjectMeta.Name).
+				Resource("UbuntuKernelModules").
+				Body(&kernelModuleCR).
+				SubResource("status").
+				Do(context.TODO()).
+				Into(&result)
+
+			if err != nil {
+				log.Errorf("Error updating UbuntuKernelModule CR: %s", err.Error())
+				continue
+			}
 
 		}
 
