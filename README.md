@@ -1,6 +1,6 @@
 # Ubuntu Operator
 
-<img src="images/ubuntunetes.png" width="550">
+<img src="images/ubuntunetes.png" width="300">
 
 Control Ubuntu from Kubernetes.
 
