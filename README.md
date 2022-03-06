@@ -23,7 +23,7 @@ spec:
     apt:
     - name: "build-essentials"
     snap:
-    - name: "microk8ss"
+    - name: "microk8s"
       confinement: "classic"
 ```
 
