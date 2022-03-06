@@ -1,5 +1,7 @@
 # Ubuntu Operator
 
+<img src="images/ubuntunetes.png" width="550">
+
 Control Ubuntu from Kubernetes.
 
 ![license](https://img.shields.io/github/license/cloud-native-skunkworks/ubuntu-operator)
