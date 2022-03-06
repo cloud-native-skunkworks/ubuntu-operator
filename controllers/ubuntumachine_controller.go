@@ -41,15 +41,15 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/source"
 )
 
-// UbuntuMachineReconciler reconciles a UbuntuMachine object
-type UbuntuMachineReconciler struct {
+// UbuntuMachineConfigurationReconciler reconciles a UbuntuMachine object
+type UbuntuMachineConfigurationReconciler struct {
 	client.Client
 	Scheme *runtime.Scheme
 }
 
-//+kubebuilder:rbac:groups=ubuntu.machinery.io.canonical.com,resources=ubuntumachines,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=ubuntu.machinery.io.canonical.com,resources=ubuntumachines/status,verbs=get;update;patch;create;delete
-//+kubebuilder:rbac:groups=ubuntu.machinery.io.canonical.com,resources=ubuntumachines/finalizers,verbs=patch;create;update;delete
+//+kubebuilder:rbac:groups=ubuntu.machinery.io.canonical.com,resources=ubuntumachineconfiguration,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=ubuntu.machinery.io.canonical.com,resources=ubuntumachineconfiguration/status,verbs=get;update;patch;create;delete
+//+kubebuilder:rbac:groups=ubuntu.machinery.io.canonical.com,resources=ubuntumachineconfiguration/finalizers,verbs=patch;create;update;delete
 //+kubebuilder:rbac:groups=apps,resources=daemonsets,verbs=get;list;watch;create;update;patch;delete
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
@@ -62,7 +62,7 @@ type UbuntuMachineReconciler struct {
 // For more details, check Reconcile and its Result here:
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.11.0/pkg/reconcile
 
-func (r *UbuntuMachineReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
+func (r *UbuntuMachineConfigurationReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	_ = log.FromContext(ctx)
 
 	instance := &v1alpha1.UbuntuMachineConfiguration{}
@@ -206,7 +206,7 @@ func (r *UbuntuMachineReconciler) Reconcile(ctx context.Context, req ctrl.Reques
 }
 
 // SetupWithManager sets up the controller with the Manager.
-func (r *UbuntuMachineReconciler) SetupWithManager(mgr ctrl.Manager) error {
+func (r *UbuntuMachineConfigurationReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&ubuntumachineryiov1alpha1.UbuntuMachineConfiguration{}).Watches(&source.Kind{Type: &appsv1.DaemonSet{}},
 		&handler.EnqueueRequestForOwner{

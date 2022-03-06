@@ -59,7 +59,7 @@ type UbuntuMachineConfiguration struct {
 
 //+kubebuilder:object:root=true
 
-// UbuntuMachineConfigurationList contains a list of UbuntuMachine
+// UbuntuMachineConfigurationList contains a list of UbuntuMachineConfiguration
 type UbuntuMachineConfigurationList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`

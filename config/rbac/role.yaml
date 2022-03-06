@@ -20,7 +20,7 @@ rules:
 - apiGroups:
   - ubuntu.machinery.io.canonical.com
   resources:
-  - ubuntumachines
+  - ubuntumachineconfiguration
   verbs:
   - create
   - delete
@@ -32,7 +32,7 @@ rules:
 - apiGroups:
   - ubuntu.machinery.io.canonical.com
   resources:
-  - ubuntumachines/finalizers
+  - ubuntumachineconfiguration/finalizers
   verbs:
   - create
   - delete
@@ -41,7 +41,7 @@ rules:
 - apiGroups:
   - ubuntu.machinery.io.canonical.com
   resources:
-  - ubuntumachines/status
+  - ubuntumachineconfiguration/status
   verbs:
   - create
   - delete

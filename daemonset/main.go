@@ -82,9 +82,9 @@ func buildClient(config *rest.Config) *rest.RESTClient {
 	return client
 }
 
-func fetchUbuntuMachineCR(restClient *rest.RESTClient) (v1alpha1.UbuntuMachineConfigurationList, error) {
+func fetchUbuntuMachineConfigurationCR(restClient *rest.RESTClient) (v1alpha1.UbuntuMachineConfigurationList, error) {
 	result := v1alpha1.UbuntuMachineConfigurationList{}
-	err := restClient.Get().Resource("UbuntuMachines").Do(context.TODO()).Into(&result)
+	err := restClient.Get().Resource("UbuntuMachineConfigurations").Do(context.TODO()).Into(&result)
 
 	return result, err
 }
@@ -146,14 +146,14 @@ func main() {
 		}
 		defer c.Close()
 		// // Check that the CR exists before we start polling
-		// li, err := fetchUbuntuMachineCR(restClient)
+		// li, err := fetchUbuntuKernelModuleCR(restClient)
 		// if err != nil || len(li.Items) == 0 {
-		// 	log.Warningf("No UbuntuMachine CR found. Waiting for it to be created.")
+		// 	log.Warningf("No UbuntuKernelModule CR found. Waiting for it to be created.")
 		// 	continue
 		// }
 		// TODO:
 		//
-		// Currently the architecture is for a single UbuntuMachine CR.
+		// Currently the architecture is for a single UbuntuKernelModule CR.
 		// This may need to change in the future
 		//
 		sendMessage := RelayMessage{
@@ -196,16 +196,16 @@ func main() {
 			log.Printf("Response recieved \n")
 
 			// Write back the changes
-			li, err := fetchUbuntuMachineCR(restClient)
+			li, err := fetchUbuntuMachineConfigurationCR(restClient)
 			if err != nil || len(li.Items) == 0 {
-				log.Printf("No UbuntuMachine CR found. Waiting for it to be created.")
+				log.Printf("No UbuntuMachineConfiguration CR found. Waiting for it to be created.")
 				time.Sleep(time.Second * 30)
 				continue
 			}
 			//TODO:
 			// Only interacting with the first CR
 
-			kernelModuleCR := li.Items[0]
+			UbuntuMachineConfigurationCR := li.Items[0]
 
 			var modules []v1alpha1.Module
 			for _, mods := range msg.ActualModules {
@@ -217,28 +217,28 @@ func main() {
 
 			}
 
-			kernelModuleCR.Status.Nodes = append(kernelModuleCR.Status.Nodes, v1alpha1.Node{
+			UbuntuMachineConfigurationCR.Status.Nodes = append(UbuntuMachineConfigurationCR.Status.Nodes, v1alpha1.Node{
 				Name:    msg.HostName,
 				Modules: modules,
 			})
 
 			// Update resource version ----------------------------------------------------------------
-			kernelModuleCR.Annotations = map[string]string{}
+			UbuntuMachineConfigurationCR.Annotations = map[string]string{}
 			// ----------------------------------------------------------------------------------------
-			log.Println("Updating UbuntuMachine CR")
+			log.Println("Updating UbuntuMachineConfiguration CR")
 			result := v1alpha1.UbuntuMachineConfiguration{}
 			err = restClient.
 				Put().
-				Namespace(kernelModuleCR.ObjectMeta.Namespace).
-				Name(kernelModuleCR.ObjectMeta.Name).
-				Resource("UbuntuMachines").
-				Body(&kernelModuleCR).
+				Namespace(UbuntuMachineConfigurationCR.ObjectMeta.Namespace).
+				Name(UbuntuMachineConfigurationCR.ObjectMeta.Name).
+				Resource("UbuntuMachineConfigurations").
+				Body(&UbuntuMachineConfigurationCR).
 				SubResource("status").
 				Do(context.TODO()).
 				Into(&result)
 
 			if err != nil {
-				log.Errorf("Error updating UbuntuMachine CR: %s", err.Error())
+				log.Errorf("Error updating UbuntuMachineConfiguration CR: %s", err.Error())
 				continue
 			}
 
