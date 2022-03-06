@@ -1,20 +1,28 @@
 # Ubuntu Operator
 
 
-![modules](images/carbon.png)
-
-
 ```
 apiVersion: ubuntu.machinery.io.canonical.com/v1alpha1
-kind: UbuntuMachine
+kind: UbuntuMachineConfiguration
 metadata:
-  name: UbuntuMachine-sample
+  name: ubuntumachineconfiguration-sample
 spec:
   desiredModules:
-  - "nvme"
-  - "rfcom"
-  - "nvme_core"
+  - name: "nvme_core"
+    flags: ""
+  - name: "rfcomm"
+    flags: ""
+  desiredPackages:
+    apt:
+    - name: "build-essentials"
+    snap:
+    - name: "microk8ss"
+      confinement: "classic"
 ```
+
+
+![modules](images/carbon.png)
+
 
 Control your underlying Ubuntu distribution through Kubernetes....
 
