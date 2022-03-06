@@ -5,20 +5,20 @@ metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.8.0
   creationTimestamp: null
-  name: ubuntukernelmodules.ubuntu.machinery.io.canonical.com
+  name: ubuntumachines.ubuntu.machinery.io.canonical.com
 spec:
   group: ubuntu.machinery.io.canonical.com
   names:
-    kind: UbuntuKernelModule
-    listKind: UbuntuKernelModuleList
-    plural: ubuntukernelmodules
-    singular: ubuntukernelmodule
+    kind: UbuntuMachine
+    listKind: UbuntuMachineList
+    plural: ubuntumachines
+    singular: ubuntumachine
   scope: Namespaced
   versions:
   - name: v1alpha1
     schema:
       openAPIV3Schema:
-        description: UbuntuKernelModule is the Schema for the ubuntukernelmodules
+        description: UbuntuMachine is the Schema for the ubuntumachines
           API
         properties:
           apiVersion:
@@ -52,7 +52,7 @@ spec:
             - desiredModules
             type: object
           status:
-            description: UbuntuKernelModuleStatus defines the observed state of UbuntuKernelModule
+            description: ubuntumachinestatus defines the observed state of UbuntuMachine
             properties:
               nodes:
                 items:

@@ -79,11 +79,11 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err = (&controllers.UbuntuKernelModuleReconciler{
+	if err = (&controllers.UbuntuMachineReconciler{
 		Client: mgr.GetClient(),
 		Scheme: mgr.GetScheme(),
 	}).SetupWithManager(mgr); err != nil {
-		setupLog.Error(err, "unable to create controller", "controller", "UbuntuKernelModule")
+		setupLog.Error(err, "unable to create controller", "controller", "UbuntuMachine")
 		os.Exit(1)
 	}
 

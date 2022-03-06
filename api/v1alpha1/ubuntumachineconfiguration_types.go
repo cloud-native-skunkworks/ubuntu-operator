@@ -23,7 +23,7 @@ import (
 // EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
 // NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
 
-type UbuntuKernelModuleSpec struct {
+type UbuntuMachineSpec struct {
 	DesiredModules []Module `json:"desiredModules"`
 }
 
@@ -39,8 +39,8 @@ type Module struct {
 	Size   string `json:"size,omitempty"`
 }
 
-// UbuntuKernelModuleStatus defines the observed state of UbuntuKernelModule
-type UbuntuKernelModuleStatus struct {
+// UbuntuMachineStatus defines the observed state of UbuntuMachine
+type UbuntuMachineStatus struct {
 	Nodes []Node `json:"nodes"`
 }
 
@@ -48,24 +48,24 @@ type UbuntuKernelModuleStatus struct {
 // +kubebuilder:object:root=true
 
 //+kubebuilder:subresource:status
-// UbuntuKernelModule is the Schema for the ubuntukernelmodules API
-type UbuntuKernelModule struct {
+// UbuntuMachineConfiguration is the Schema for the ubuntumachines API
+type UbuntuMachineConfiguration struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec   UbuntuKernelModuleSpec   `json:"spec,omitempty"`
-	Status UbuntuKernelModuleStatus `json:"status,omitempty"`
+	Spec   UbuntuMachineSpec   `json:"spec,omitempty"`
+	Status UbuntuMachineStatus `json:"status,omitempty"`
 }
 
 //+kubebuilder:object:root=true
 
-// UbuntuKernelModuleList contains a list of UbuntuKernelModule
-type UbuntuKernelModuleList struct {
+// UbuntuMachineConfigurationList contains a list of UbuntuMachine
+type UbuntuMachineConfigurationList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
-	Items           []UbuntuKernelModule `json:"items"`
+	Items           []UbuntuMachineConfiguration `json:"items"`
 }
 
 func init() {
-	SchemeBuilder.Register(&UbuntuKernelModule{}, &UbuntuKernelModuleList{})
+	SchemeBuilder.Register(&UbuntuMachineConfiguration{}, &UbuntuMachineConfigurationList{})
 }

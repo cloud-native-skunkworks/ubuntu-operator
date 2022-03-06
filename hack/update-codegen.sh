@@ -9,7 +9,7 @@ MODULE=github.com/cloud-native-skunkworks/ubuntu-operator
 # api package
 APIS_PKG=apis
 # generated output package
-OUTPUT_PKG=generated/ubuntukernelmodules
+OUTPUT_PKG=generated/ubuntumachines
 # group-version such as foo:v1alpha1
 GROUP_VERSION=ubuntu.machinery.io.canonical.com:v1alpha1
 

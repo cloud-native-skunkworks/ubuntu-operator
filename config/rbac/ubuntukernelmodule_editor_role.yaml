@@ -1,13 +1,13 @@
-# permissions for end users to edit ubuntukernelmodules.
+# permissions for end users to edit ubuntumachines.
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: ubuntukernelmodule-editor-role
+  name: UbuntuMachine-editor-role
 rules:
 - apiGroups:
   - ubuntu.machinery.io.canonical.com
   resources:
-  - ubuntukernelmodules
+  - ubuntumachines
   verbs:
   - create
   - delete
@@ -19,6 +19,6 @@ rules:
 - apiGroups:
   - ubuntu.machinery.io.canonical.com
   resources:
-  - ubuntukernelmodules/status
+  - ubuntumachines/status
   verbs:
   - get

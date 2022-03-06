@@ -6,9 +6,9 @@
 
 ```
 apiVersion: ubuntu.machinery.io.canonical.com/v1alpha1
-kind: UbuntuKernelModule
+kind: UbuntuMachine
 metadata:
-  name: ubuntukernelmodule-sample
+  name: UbuntuMachine-sample
 spec:
   desiredModules:
   - "nvme"

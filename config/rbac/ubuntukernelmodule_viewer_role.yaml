@@ -1,13 +1,13 @@
-# permissions for end users to view ubuntukernelmodules.
+# permissions for end users to view ubuntumachines.
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: ubuntukernelmodule-viewer-role
+  name: UbuntuMachine-viewer-role
 rules:
 - apiGroups:
   - ubuntu.machinery.io.canonical.com
   resources:
-  - ubuntukernelmodules
+  - ubuntumachines
   verbs:
   - get
   - list
@@ -15,6 +15,6 @@ rules:
 - apiGroups:
   - ubuntu.machinery.io.canonical.com
   resources:
-  - ubuntukernelmodules/status
+  - ubuntumachines/status
   verbs:
   - get

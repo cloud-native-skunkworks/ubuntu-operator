@@ -41,31 +41,31 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/source"
 )
 
-// UbuntuKernelModuleReconciler reconciles a UbuntuKernelModule object
-type UbuntuKernelModuleReconciler struct {
+// UbuntuMachineReconciler reconciles a UbuntuMachine object
+type UbuntuMachineReconciler struct {
 	client.Client
 	Scheme *runtime.Scheme
 }
 
-//+kubebuilder:rbac:groups=ubuntu.machinery.io.canonical.com,resources=ubuntukernelmodules,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=ubuntu.machinery.io.canonical.com,resources=ubuntukernelmodules/status,verbs=get;update;patch;create;delete
-//+kubebuilder:rbac:groups=ubuntu.machinery.io.canonical.com,resources=ubuntukernelmodules/finalizers,verbs=patch;create;update;delete
+//+kubebuilder:rbac:groups=ubuntu.machinery.io.canonical.com,resources=ubuntumachines,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=ubuntu.machinery.io.canonical.com,resources=ubuntumachines/status,verbs=get;update;patch;create;delete
+//+kubebuilder:rbac:groups=ubuntu.machinery.io.canonical.com,resources=ubuntumachines/finalizers,verbs=patch;create;update;delete
 //+kubebuilder:rbac:groups=apps,resources=daemonsets,verbs=get;list;watch;create;update;patch;delete
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
 // TODO(user): Modify the Reconcile function to compare the state specified by
-// the UbuntuKernelModule object against the actual cluster state, and then
+// the UbuntuMachine object against the actual cluster state, and then
 // perform operations to make the cluster state reflect the state specified by
 // the user.
 //
 // For more details, check Reconcile and its Result here:
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.11.0/pkg/reconcile
 
-func (r *UbuntuKernelModuleReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
+func (r *UbuntuMachineReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	_ = log.FromContext(ctx)
 
-	instance := &v1alpha1.UbuntuKernelModule{}
+	instance := &v1alpha1.UbuntuMachineConfiguration{}
 	err := r.Get(context.TODO(), req.NamespacedName, instance)
 	if err != nil {
 		if errors.IsNotFound(err) {
@@ -127,7 +127,7 @@ func (r *UbuntuKernelModuleReconciler) Reconcile(ctx context.Context, req ctrl.R
 							},
 							ImagePullPolicy: corev1.PullAlways,
 							Name:            "controller",
-							Image:           "tibbar/ubuntu-kernel-module-controller:latest",
+							Image:           "tibbar/ubuntu-machine-controller:latest",
 							SecurityContext: &corev1.SecurityContext{
 								Privileged: &[]bool{true}[0],
 								Capabilities: &corev1.Capabilities{
@@ -206,12 +206,12 @@ func (r *UbuntuKernelModuleReconciler) Reconcile(ctx context.Context, req ctrl.R
 }
 
 // SetupWithManager sets up the controller with the Manager.
-func (r *UbuntuKernelModuleReconciler) SetupWithManager(mgr ctrl.Manager) error {
+func (r *UbuntuMachineReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
-		For(&ubuntumachineryiov1alpha1.UbuntuKernelModule{}).Watches(&source.Kind{Type: &appsv1.DaemonSet{}},
+		For(&ubuntumachineryiov1alpha1.UbuntuMachineConfiguration{}).Watches(&source.Kind{Type: &appsv1.DaemonSet{}},
 		&handler.EnqueueRequestForOwner{
 			IsController: true,
-			OwnerType:    &v1alpha1.UbuntuKernelModule{},
+			OwnerType:    &v1alpha1.UbuntuMachineConfiguration{},
 		}).
 		Complete(r)
 }

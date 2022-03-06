@@ -1,7 +1,7 @@
 apiVersion: ubuntu.machinery.io.canonical.com/v1alpha1
-kind: UbuntuKernelModule
+kind: UbuntuMachine
 metadata:
-  name: ubuntukernelmodule-sample
+  name: ubuntumachine-sample
 spec:
   desiredModules:
   - name: "nvme_core"

@@ -10,7 +10,7 @@ resources:
   controller: true
   domain: canonical.com
   group: ubuntu.machinery.io
-  kind: UbuntuKernelModule
+  kind: UbuntuMachine
   path: ubuntu-operator/api/v1alpha1
   version: v1alpha1
 - controller: true

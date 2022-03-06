@@ -54,8 +54,8 @@ var (
 
 func addKnownTypes(scheme *runtime.Scheme) error {
 	scheme.AddKnownTypes(SchemeGroupVersion,
-		&v1alpha1.UbuntuKernelModuleList{},
-		&v1alpha1.UbuntuKernelModule{})
+		&v1alpha1.UbuntuMachineConfigurationList{},
+		&v1alpha1.UbuntuMachineConfiguration{})
 
 	mv1.AddToGroupVersion(scheme, SchemeGroupVersion)
 	return nil
@@ -82,9 +82,9 @@ func buildClient(config *rest.Config) *rest.RESTClient {
 	return client
 }
 
-func fetchUbuntuKernelModuleCR(restClient *rest.RESTClient) (v1alpha1.UbuntuKernelModuleList, error) {
-	result := v1alpha1.UbuntuKernelModuleList{}
-	err := restClient.Get().Resource("ubuntukernelmodules").Do(context.TODO()).Into(&result)
+func fetchUbuntuMachineCR(restClient *rest.RESTClient) (v1alpha1.UbuntuMachineConfigurationList, error) {
+	result := v1alpha1.UbuntuMachineConfigurationList{}
+	err := restClient.Get().Resource("UbuntuMachines").Do(context.TODO()).Into(&result)
 
 	return result, err
 }
@@ -146,14 +146,14 @@ func main() {
 		}
 		defer c.Close()
 		// // Check that the CR exists before we start polling
-		// li, err := fetchUbuntuKernelModuleCR(restClient)
+		// li, err := fetchUbuntuMachineCR(restClient)
 		// if err != nil || len(li.Items) == 0 {
-		// 	log.Warningf("No UbuntuKernelModule CR found. Waiting for it to be created.")
+		// 	log.Warningf("No UbuntuMachine CR found. Waiting for it to be created.")
 		// 	continue
 		// }
 		// TODO:
 		//
-		// Currently the architecture is for a single UbuntuKernelModule CR.
+		// Currently the architecture is for a single UbuntuMachine CR.
 		// This may need to change in the future
 		//
 		sendMessage := RelayMessage{
@@ -196,9 +196,9 @@ func main() {
 			log.Printf("Response recieved \n")
 
 			// Write back the changes
-			li, err := fetchUbuntuKernelModuleCR(restClient)
+			li, err := fetchUbuntuMachineCR(restClient)
 			if err != nil || len(li.Items) == 0 {
-				log.Printf("No UbuntuKernelModule CR found. Waiting for it to be created.")
+				log.Printf("No UbuntuMachine CR found. Waiting for it to be created.")
 				time.Sleep(time.Second * 30)
 				continue
 			}
@@ -225,20 +225,20 @@ func main() {
 			// Update resource version ----------------------------------------------------------------
 			kernelModuleCR.Annotations = map[string]string{}
 			// ----------------------------------------------------------------------------------------
-			log.Println("Updating ubuntuKernelModule CR")
-			result := v1alpha1.UbuntuKernelModule{}
+			log.Println("Updating UbuntuMachine CR")
+			result := v1alpha1.UbuntuMachineConfiguration{}
 			err = restClient.
 				Put().
 				Namespace(kernelModuleCR.ObjectMeta.Namespace).
 				Name(kernelModuleCR.ObjectMeta.Name).
-				Resource("UbuntuKernelModules").
+				Resource("UbuntuMachines").
 				Body(&kernelModuleCR).
 				SubResource("status").
 				Do(context.TODO()).
 				Into(&result)
 
 			if err != nil {
-				log.Errorf("Error updating UbuntuKernelModule CR: %s", err.Error())
+				log.Errorf("Error updating UbuntuMachine CR: %s", err.Error())
 				continue
 			}
 
