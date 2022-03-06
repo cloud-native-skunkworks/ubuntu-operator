@@ -28,6 +28,10 @@ Control your underlying Ubuntu distribution through Kubernetes....
 
 ![arch](images/arch.png)
 
+## Roadmap
+
+- [x] Kernel module support
+- [ ] Package system support
 
 ## Installation
 
