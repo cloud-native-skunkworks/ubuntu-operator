@@ -4,6 +4,7 @@ Control Ubuntu from Kubernetes.
 
 ![license](https://img.shields.io/github/license/cloud-native-skunkworks/ubuntu-operator)
 ![tags](https://img.shields.io/github/v/tag/cloud-native-skunkworks/ubuntu-operator)
+![build](https://img.shields.io/github/workflow/status/cloud-native-skunkworks/ubuntu-operator/Docker%20Image%20CI)
 
 ```
 apiVersion: ubuntu.machinery.io.canonical.com/v1alpha1
