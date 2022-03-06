@@ -42,25 +42,18 @@ Control your underlying Ubuntu distribution through Kubernetes....
 
 ## Installation
 
-## Host-relay
+Two step installation process.
+1. Installing the host-relay on all hosts
+2. Installing the Operator in cluster once.
+
+### Host-relay
 
 `make install-relay`
 
-## Operator 
+### Operator 
 ```
 make install # Uploads the CustomResourceDefinitions into your cluster
 make deploy
 ```
 
 
-## Development
-
-### Operator 
-
-After installing the CRD with `make install`
-Run `go run main.go` to run the operator locally.
-
-
-#### Notes
-
-Regenerating the clientset was done from [this](https://www.fatalerrors.org/a/writing-crd-by-mixing-kubeuilder-and-code-generator.html) guide.
