@@ -40,7 +40,9 @@ Control your underlying Ubuntu distribution through Kubernetes....
 ## Roadmap
 
 - [x] Kernel module support
-- [ ] Package system support
+- [x] APT Package system support
+- [x] Snap Package system support
+- [ ] Improvements to package system support 
 
 ## Installation
 
