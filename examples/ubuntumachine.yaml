@@ -8,9 +8,9 @@ spec:
     flags: ""
   - name: "rfcomm"
     flags: ""
-  # desiredPackages:
-  #   apt:
-  #   - name: "build-essentials"
-  #   snap:
-  #   - name: "microk8ss"
-  #     confinement: "classic"
+  desiredPackages:
+    apt:
+    - name: "build-essentials"
+    snap:
+    - name: "microk8s"
+      confinement: "classic"

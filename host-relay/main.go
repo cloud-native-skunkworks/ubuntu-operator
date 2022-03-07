@@ -18,11 +18,26 @@ type Module struct {
 	Flags string `json:"flags"`
 }
 
+type DesiredPackages struct {
+	Apt  []AptPackage  `json:"apt"`
+	Snap []SnapPackage `json:"snap"`
+}
+
+type AptPackage struct {
+	Name string `json:"name"`
+}
+
+type SnapPackage struct {
+	Name        string `json:"name"`
+	Confinement string `json:"confinement"`
+}
+
 type RelayMessage struct {
-	Type           string   `json:"type"` // "Request | Response"
-	HostName       string   `json:"hostName"`
-	DesiredModules []Module `json:"desiredModules"`
-	ActualModules  []Module `json:"actualModules"`
+	Type            string          `json:"type"` // "Request | Response"
+	HostName        string          `json:"hostname"`
+	DesiredModules  []Module        `json:"desiredModules"`
+	DesiredPackages DesiredPackages `json:"desiredPackages"`
+	ActualModules   []Module        `json:"actualModules"`
 }
 
 func loadKernelModule(moduleName string, flags string, k *kmod.Kmod) error {
@@ -60,6 +75,14 @@ func server(c net.Conn, k *kmod.Kmod, kkm *kmk.Kmod) {
 					fmt.Println("Error loading module:", err)
 					continue
 				}
+			}
+
+			for _, pkg := range msg.DesiredPackages.Apt {
+				fmt.Printf("\nDesired APT package: %s", pkg.Name)
+			}
+
+			for _, pkg := range msg.DesiredPackages.Snap {
+				fmt.Printf("\nDesired SNAP package: %s confinement type: %s", pkg.Name, pkg.Confinement)
 			}
 
 			// List all loaded modules

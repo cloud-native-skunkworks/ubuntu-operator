@@ -69,23 +69,32 @@ func (r *UbuntuMachineConfigurationReconciler) Reconcile(ctx context.Context, re
 	err := r.Get(context.TODO(), req.NamespacedName, instance)
 	if err != nil {
 		if errors.IsNotFound(err) {
-			// Object not found, return.
-			// Created objects are automatically garbage collected.
-			// For additional cleanup logic use finalizers.
+
 			return ctrl.Result{}, nil
 		}
 		// Error reading the object - requeue the request.
 		return ctrl.Result{}, err
 
 	}
-
+	// Create our payload configuration -
 	var moduleList []string
 	for _, mod := range instance.Spec.DesiredModules {
 
 		joined := fmt.Sprintf("%s=%s", mod.Name, mod.Flags)
 		moduleList = append(moduleList, joined)
 	}
-
+	var aptList []string
+	for _, mod := range instance.Spec.DesiredPackages.Apt {
+		aptList = append(aptList, mod.Name)
+	}
+	var snapList []string
+	for _, mod := range instance.Spec.DesiredPackages.Snap {
+		joined := fmt.Sprintf("%s=%s", mod.Name, mod.Confinement)
+		snapList = append(snapList, joined)
+	}
+	//
+	// TODO: Redeploy the Daemonset if there is a change on the CR
+	//
 	hostPathType := v1.HostPathDirectoryOrCreate
 	// Define the desired Daemonset object
 
@@ -123,6 +132,14 @@ func (r *UbuntuMachineConfigurationReconciler) Reconcile(ctx context.Context, re
 								{
 									Name:  "MODULE_LIST",
 									Value: strings.Join(moduleList, ","),
+								},
+								{
+									Name:  "APT_LIST",
+									Value: strings.Join(aptList, ","),
+								},
+								{
+									Name:  "SNAP_LIST",
+									Value: strings.Join(snapList, ","),
 								},
 							},
 							ImagePullPolicy: corev1.PullAlways,
