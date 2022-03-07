@@ -4,8 +4,6 @@
 
 _Control Ubuntu from Kubernetes_
 
-[![asciicast](https://asciinema.org/a/wKRetUd3rnpKFGWTJ7CEVfWcX.svg)](https://asciinema.org/a/wKRetUd3rnpKFGWTJ7CEVfWcX)
-
 Imagine a world where your Kubernetes nodes can be managed and controlled from primitives that represent desired intent and are constantly reconciled.
 This project initially looks at the package management system and kernel modules for Ubuntu as an example of how this can be built upon.
 
@@ -19,6 +17,10 @@ This project initially looks at the package management system and kernel modules
 
 
 Control your underlying Ubuntu distribution through Kubernetes....
+
+
+[![asciicast](https://asciinema.org/a/wKRetUd3rnpKFGWTJ7CEVfWcX.svg)](https://asciinema.org/a/wKRetUd3rnpKFGWTJ7CEVfWcX)
+
 
 ![arch](images/arch.png)
 
