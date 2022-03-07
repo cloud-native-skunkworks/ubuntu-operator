@@ -4,6 +4,8 @@
 
 Control Ubuntu from Kubernetes.
 
+## Project status: Alpha/Conceptual/POC/Not-for-production
+
 ![license](https://img.shields.io/github/license/cloud-native-skunkworks/ubuntu-operator)
 ![tags](https://img.shields.io/github/v/tag/cloud-native-skunkworks/ubuntu-operator)
 ![build](https://img.shields.io/github/workflow/status/cloud-native-skunkworks/ubuntu-operator/Docker%20Image%20CI)
