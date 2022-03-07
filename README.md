@@ -21,7 +21,7 @@ spec:
     flags: ""
   desiredPackages:
     apt:
-    - name: "build-essentials"
+    - name: "build-essential"
     snap:
     - name: "microk8s"
       confinement: "classic"
