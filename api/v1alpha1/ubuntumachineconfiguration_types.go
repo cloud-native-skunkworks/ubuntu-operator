@@ -24,12 +24,27 @@ import (
 // NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
 
 type UbuntuMachineSpec struct {
-	DesiredModules []Module `json:"desiredModules"`
+	DesiredModules  []Module        `json:"desiredModules"`
+	DesiredPackages DesiredPackages `json:"desiredPackages"`
+}
+
+type DesiredPackages struct {
+	Apt  []AptPackage  `json:"apt"`
+	Snap []SnapPackage `json:"snap"`
 }
 
 type Node struct {
 	Name    string   `json:"name"`
 	Modules []Module `json:"modules"`
+}
+
+type AptPackage struct {
+	Name string `json:"name"`
+}
+
+type SnapPackage struct {
+	Name        string `json:"name"`
+	Confinement string `json:"confinement"`
 }
 
 type Module struct {

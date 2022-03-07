@@ -1,0 +1,16 @@
+apiVersion: ubuntu.machinery.io.canonical.com/v1alpha1
+kind: UbuntuMachineConfiguration
+metadata:
+  name: ubuntumachineconfiguration-sample
+spec:
+  desiredModules:
+  - name: "nvme_core"
+    flags: ""
+  - name: "rfcomm"
+    flags: ""
+  desiredPackages:
+    apt:
+    - name: "build-essential"
+    snap:
+    - name: "microk8s"
+      confinement: "classic"

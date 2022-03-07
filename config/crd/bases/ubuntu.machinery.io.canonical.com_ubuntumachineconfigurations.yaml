@@ -48,8 +48,36 @@ spec:
                       type: string
                   type: object
                 type: array
+              desiredPackages:
+                properties:
+                  apt:
+                    items:
+                      properties:
+                        name:
+                          type: string
+                      required:
+                      - name
+                      type: object
+                    type: array
+                  snap:
+                    items:
+                      properties:
+                        confinement:
+                          type: string
+                        name:
+                          type: string
+                      required:
+                      - confinement
+                      - name
+                      type: object
+                    type: array
+                required:
+                - apt
+                - snap
+                type: object
             required:
             - desiredModules
+            - desiredPackages
             type: object
           status:
             description: UbuntuMachineStatus defines the observed state of UbuntuMachine

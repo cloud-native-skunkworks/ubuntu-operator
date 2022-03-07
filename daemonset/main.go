@@ -25,26 +25,63 @@ type Module struct {
 	Flags string `json:"flags"`
 }
 
-type RelayMessage struct {
-	Type           string   `json:"type"` // "Request | Response"
-	HostName       string   `json:"hostname"`
-	DesiredModules []Module `json:"desiredModules"`
-	ActualModules  []Module `json:"actualModules"`
+type DesiredPackages struct {
+	Apt  []AptPackage  `json:"apt"`
+	Snap []SnapPackage `json:"snap"`
 }
 
-type arrayFlags []string
+type AptPackage struct {
+	Name string `json:"name"`
+}
 
-func (i *arrayFlags) String() string {
+type SnapPackage struct {
+	Name        string `json:"name"`
+	Confinement string `json:"confinement"`
+}
+
+type RelayMessage struct {
+	Type            string          `json:"type"` // "Request | Response"
+	HostName        string          `json:"hostname"`
+	DesiredModules  []Module        `json:"desiredModules"`
+	DesiredPackages DesiredPackages `json:"desiredPackages"`
+	ActualModules   []Module        `json:"actualModules"`
+}
+
+type moduleFlags []string
+type aptFlags []string
+type snapFlags []string
+
+func (i *moduleFlags) String() string {
 	return "my string representation"
 }
 
-func (i *arrayFlags) Set(value string) error {
+func (i *moduleFlags) Set(value string) error {
+	*i = append(*i, value)
+	return nil
+}
+
+func (i *aptFlags) String() string {
+	return "my string representation"
+}
+
+func (i *aptFlags) Set(value string) error {
+	*i = append(*i, value)
+	return nil
+}
+
+func (i *snapFlags) String() string {
+	return "my string representation"
+}
+
+func (i *snapFlags) Set(value string) error {
 	*i = append(*i, value)
 	return nil
 }
 
 var (
-	myFlags            arrayFlags
+	moduleFlag         moduleFlags
+	snapFlag           snapFlags
+	aptFlag            aptFlags
 	minWatchTimeout    = 5 * time.Minute
 	masterURL          = flag.String("masterURL", "", "masterURL")
 	kubeconfig         = flag.String("kubeconfig", "", "kubeconfig")
@@ -96,7 +133,9 @@ func main() {
 	// Only log the warning severity or above.
 	log.SetLevel(log.DebugLevel)
 
-	flag.Var(&myFlags, "module", "Module and args e.g. --module=nvme_core --module=rfcomm=foo")
+	flag.Var(&moduleFlag, "module", "Module and args e.g. --module=nvme_core --module=rfcomm=foo")
+	flag.Var(&aptFlag, "apt", "Apt package and args e.g. --apt=build-essentials")
+	flag.Var(&snapFlag, "snap", "Snap package and args e.g. --snap=microK8s=classic")
 	flag.Parse()
 	// Setup KubeClient -----------------------------------------------------------------------------
 
@@ -109,8 +148,30 @@ func main() {
 
 	// Setup Kmod ------------------------------------------------------------------------------------
 
+	// This allows the daemonset to pass through module lists
+	if os.Getenv("MODULE_LIST") != "" {
+		envList := strings.Split(os.Getenv("MODULE_LIST"), ",")
+		for _, module := range envList {
+			moduleFlag = append(moduleFlag, module)
+		}
+	}
+
+	if os.Getenv("APT_LIST") != "" {
+		envList := strings.Split(os.Getenv("APT_LIST"), ",")
+		for _, module := range envList {
+			aptFlag = append(aptFlag, module)
+		}
+	}
+
+	if os.Getenv("SNAP_LIST") != "" {
+		envList := strings.Split(os.Getenv("SNAP_LIST"), ",")
+		for _, module := range envList {
+			snapFlag = append(snapFlag, module)
+		}
+	}
+
 	var desiredModules []Module
-	for _, module := range myFlags {
+	for _, module := range moduleFlag {
 		fmt.Println("Desired module:", module)
 		s := strings.Split(module, "=")
 		m := Module{Name: s[0]}
@@ -120,19 +181,28 @@ func main() {
 		desiredModules = append(desiredModules, m)
 	}
 
-	// This allows the daemonset to pass through module lists
-	if os.Getenv("MODULE_LIST") != "" {
-		envList := strings.Split(os.Getenv("MODULE_LIST"), ",")
-		for _, module := range envList {
-			myFlags = append(myFlags, module)
+	var aptPackages []AptPackage
+	for _, module := range aptFlag {
+		fmt.Println("Desired apt package:", module)
+		s := strings.Split(module, "=")
+		m := AptPackage{Name: s[0]}
+
+		aptPackages = append(aptPackages, m)
+	}
+
+	var snapPackage []SnapPackage
+	for _, module := range snapFlag {
+		fmt.Println("Desired snap package:", module)
+		s := strings.Split(module, "=")
+		m := SnapPackage{Name: s[0]}
+		if len(s) > 1 {
+			m.Confinement = s[1]
 		}
+		snapPackage = append(snapPackage, m)
 	}
 
 	// ------------------------------------------------------------------------------------------------
-	if len(myFlags) == 0 {
-		log.Printf("No modules specified. Exiting.\n")
-		return
-	}
+
 	if *socketPath == "" {
 		log.Printf("No --socketPath set")
 		return
@@ -145,21 +215,16 @@ func main() {
 			panic(err.Error())
 		}
 		defer c.Close()
-		// // Check that the CR exists before we start polling
-		// li, err := fetchUbuntuKernelModuleCR(restClient)
-		// if err != nil || len(li.Items) == 0 {
-		// 	log.Warningf("No UbuntuKernelModule CR found. Waiting for it to be created.")
-		// 	continue
-		// }
-		// TODO:
-		//
-		// Currently the architecture is for a single UbuntuKernelModule CR.
-		// This may need to change in the future
-		//
+
 		sendMessage := RelayMessage{
 			Type:           "Request",
 			DesiredModules: desiredModules,
+			DesiredPackages: DesiredPackages{
+				Apt:  aptPackages,
+				Snap: snapPackage,
+			},
 		}
+		log.Printf("\n%+v\n", sendMessage)
 		log.Println("Marshalling message")
 		b, err := json.Marshal(sendMessage)
 		if err != nil {
