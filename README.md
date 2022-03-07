@@ -4,6 +4,8 @@
 
 Control Ubuntu from Kubernetes.
 
+## Project status: Alpha/Conceptual/POC/Functional-but-not-for-production
+
 ![license](https://img.shields.io/github/license/cloud-native-skunkworks/ubuntu-operator)
 ![tags](https://img.shields.io/github/v/tag/cloud-native-skunkworks/ubuntu-operator)
 ![build](https://img.shields.io/github/workflow/status/cloud-native-skunkworks/ubuntu-operator/Docker%20Image%20CI)
@@ -18,7 +20,9 @@ Control your underlying Ubuntu distribution through Kubernetes....
 ## Roadmap
 
 - [x] Kernel module support
-- [ ] Package system support
+- [x] APT Package system support
+- [x] Snap Package system support
+- [ ] Improvements to package system support 
 
 ## Installation
 
