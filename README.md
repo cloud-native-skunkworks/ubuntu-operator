@@ -8,27 +8,7 @@ Control Ubuntu from Kubernetes.
 ![tags](https://img.shields.io/github/v/tag/cloud-native-skunkworks/ubuntu-operator)
 ![build](https://img.shields.io/github/workflow/status/cloud-native-skunkworks/ubuntu-operator/Docker%20Image%20CI)
 
-```
-apiVersion: ubuntu.machinery.io.canonical.com/v1alpha1
-kind: UbuntuMachineConfiguration
-metadata:
-  name: ubuntumachineconfiguration-sample
-spec:
-  desiredModules:
-  - name: "nvme_core"
-    flags: ""
-  - name: "rfcomm"
-    flags: ""
-  desiredPackages:
-    apt:
-    - name: "build-essential"
-    snap:
-    - name: "microk8s"
-      confinement: "classic"
-```
-
-
-![modules](images/carbon.png)
+![cs](images/code-example.png)
 
 
 Control your underlying Ubuntu distribution through Kubernetes....
