@@ -2,7 +2,10 @@
 
 <img src="images/ubuntunetes.png" width="300">
 
-Control Ubuntu from Kubernetes.
+_Control Ubuntu from Kubernetes_
+
+Imagine a world where your Kubernetes nodes can be managed and controlled from primitives that represent desired intent and are constantly reconciled.
+This project initially looks at the package management system and kernel modules for Ubuntu as an example of how this can be built upon.
 
 ## Project status: Alpha/Conceptual/POC/Functional-but-not-for-production
 
