@@ -47,35 +47,7 @@ type UbuntuMachineConfigurationReconciler struct {
 	Scheme *runtime.Scheme
 }
 
-//+kubebuilder:rbac:groups=ubuntu.machinery.io.canonical.com,resources=ubuntumachineconfiguration,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=ubuntu.machinery.io.canonical.com,resources=ubuntumachineconfiguration/status,verbs=get;update;patch;create;delete
-//+kubebuilder:rbac:groups=ubuntu.machinery.io.canonical.com,resources=ubuntumachineconfiguration/finalizers,verbs=patch;create;update;delete
-//+kubebuilder:rbac:groups=apps,resources=daemonsets,verbs=get;list;watch;create;update;patch;delete
-
-// Reconcile is part of the main kubernetes reconciliation loop which aims to
-// move the current state of the cluster closer to the desired state.
-// TODO(user): Modify the Reconcile function to compare the state specified by
-// the UbuntuMachine object against the actual cluster state, and then
-// perform operations to make the cluster state reflect the state specified by
-// the user.
-//
-// For more details, check Reconcile and its Result here:
-// - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.11.0/pkg/reconcile
-
-func (r *UbuntuMachineConfigurationReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	_ = log.FromContext(ctx)
-
-	instance := &v1alpha1.UbuntuMachineConfiguration{}
-	err := r.Get(context.TODO(), req.NamespacedName, instance)
-	if err != nil {
-		if errors.IsNotFound(err) {
-
-			return ctrl.Result{}, nil
-		}
-		// Error reading the object - requeue the request.
-		return ctrl.Result{}, err
-
-	}
+func (r *UbuntuMachineConfigurationReconciler) buildDaemonset(instance *v1alpha1.UbuntuMachineConfiguration) (*appsv1.DaemonSet, error) {
 	// Create our payload configuration -
 	var moduleList []string
 	for _, mod := range instance.Spec.DesiredModules {
@@ -92,13 +64,8 @@ func (r *UbuntuMachineConfigurationReconciler) Reconcile(ctx context.Context, re
 		joined := fmt.Sprintf("%s=%s", mod.Name, mod.Confinement)
 		snapList = append(snapList, joined)
 	}
-	//
-	// TODO: Redeploy the Daemonset if there is a change on the CR
-	//
-	hostPathType := v1.HostPathDirectoryOrCreate
-	// Define the desired Daemonset object
 
-	// Seems to be a bug here on creating daemonsets
+	hostPathType := v1.HostPathDirectoryOrCreate
 
 	daemonset := &appsv1.DaemonSet{
 		ObjectMeta: metav1.ObjectMeta{
@@ -164,7 +131,11 @@ func (r *UbuntuMachineConfigurationReconciler) Reconcile(ctx context.Context, re
 			},
 		},
 	}
-	// Check finalizers
+	return daemonset, nil
+}
+
+func (r *UbuntuMachineConfigurationReconciler) checkFinalizers(instance *v1alpha1.UbuntuMachineConfiguration,
+	daemonset *appsv1.DaemonSet, ctx context.Context) (ctrl.Result, error) {
 	finalizerName := "ubuntu.machinery.io/finalizer"
 	// Check to see if the Cluster has a finalizer
 	if instance.ObjectMeta.DeletionTimestamp.IsZero() {
@@ -182,7 +153,7 @@ func (r *UbuntuMachineConfigurationReconciler) Reconcile(ctx context.Context, re
 		if controllerutil.ContainsFinalizer(instance, finalizerName) {
 
 			found := &appsv1.DaemonSet{}
-			err = r.Get(context.TODO(), types.NamespacedName{Name: daemonset.Name, Namespace: daemonset.Namespace}, found)
+			err := r.Get(context.TODO(), types.NamespacedName{Name: daemonset.Name, Namespace: daemonset.Namespace}, found)
 			if err == nil {
 				if err = r.Delete(ctx, found); err != nil {
 					return ctrl.Result{}, err
@@ -200,7 +171,49 @@ func (r *UbuntuMachineConfigurationReconciler) Reconcile(ctx context.Context, re
 	if err := controllerutil.SetControllerReference(instance, daemonset, r.Scheme); err != nil {
 		return ctrl.Result{}, err
 	}
-	// Check if the Daemonset already exists
+
+	return ctrl.Result{}, nil
+}
+
+//+kubebuilder:rbac:groups=ubuntu.machinery.io.canonical.com,resources=ubuntumachineconfiguration,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=ubuntu.machinery.io.canonical.com,resources=ubuntumachineconfiguration/status,verbs=get;update;patch;create;delete
+//+kubebuilder:rbac:groups=ubuntu.machinery.io.canonical.com,resources=ubuntumachineconfiguration/finalizers,verbs=patch;create;update;delete
+//+kubebuilder:rbac:groups=apps,resources=daemonsets,verbs=get;list;watch;create;update;patch;delete
+
+// Reconcile is part of the main kubernetes reconciliation loop which aims to
+// move the current state of the cluster closer to the desired state.
+// TODO(user): Modify the Reconcile function to compare the state specified by
+// the UbuntuMachine object against the actual cluster state, and then
+// perform operations to make the cluster state reflect the state specified by
+// the user.
+//
+// For more details, check Reconcile and its Result here:
+// - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.11.0/pkg/reconcile
+
+func (r *UbuntuMachineConfigurationReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
+	_ = log.FromContext(ctx)
+
+	instance := &v1alpha1.UbuntuMachineConfiguration{}
+	err := r.Get(context.TODO(), req.NamespacedName, instance)
+	if err != nil {
+		if errors.IsNotFound(err) {
+
+			return ctrl.Result{}, nil
+		}
+		// Error reading the object - requeue the request.
+		return ctrl.Result{}, err
+
+	}
+
+	daemonset, err := r.buildDaemonset(instance)
+	if err != nil {
+		return ctrl.Result{}, err
+	}
+	// Finalizers ----------------------------------------------------------------------
+	if res, err := r.checkFinalizers(instance, daemonset, ctx); err != nil {
+		return res, err
+	}
+	// Check Daemonset ------------------------------------------------------------------------
 	found := &appsv1.DaemonSet{}
 	err = r.Get(context.TODO(), types.NamespacedName{Name: daemonset.Name, Namespace: daemonset.Namespace}, found)
 	if err != nil && errors.IsNotFound(err) {
@@ -211,7 +224,6 @@ func (r *UbuntuMachineConfigurationReconciler) Reconcile(ctx context.Context, re
 	} else if err != nil {
 		return ctrl.Result{}, err
 	}
-
 	if !reflect.DeepEqual(daemonset.Spec, found.Spec) {
 		found.Spec = daemonset.Spec
 		err = r.Update(context.TODO(), found)
