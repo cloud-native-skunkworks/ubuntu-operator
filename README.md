@@ -19,9 +19,6 @@ This project initially looks at the package management system and kernel modules
 Control your underlying Ubuntu distribution through Kubernetes....
 
 
-[![asciicast](https://asciinema.org/a/wKRetUd3rnpKFGWTJ7CEVfWcX.svg)](https://asciinema.org/a/wKRetUd3rnpKFGWTJ7CEVfWcX)
-
-
 ![arch](images/arch.png)
 
 ## Roadmap
